@@ -42,6 +42,9 @@
     appearance: none;
     -webkit-appearance: none;
   }
+  select#videoSelect option:disabled {
+    color: #666;
+  }
   .list-panel {
     display: flex;
     gap: 8px;
@@ -65,6 +68,34 @@
     border-color: var(--accent);
     background: #1d2b45;
   }
+  .video-item.locked {
+    color: #666;
+    cursor: not-allowed;
+    background: #101014;
+  }
+  .questions-panel {
+    padding: 4px 16px 24px;
+  }
+  .questions-panel h2 {
+    font-size: 1.05rem;
+    margin: 10px 0 8px;
+    color: #cbd5ff;
+  }
+  .questions-panel ol {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .questions-panel li {
+    margin-bottom: 8px;
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+  .lock-note {
+    text-align: center;
+    padding: 16px;
+    color: #999;
+    font-size: 0.95rem;
+  }
 </style>
 </head>
 <body>
@@ -80,52 +111,93 @@
 
 <select id="videoSelect"></select>
 <div class="list-panel" id="videoList"></div>
+<div class="questions-panel" id="questionsPanel"></div>
 
 <script>
-const videos = [
-  { id: "8b7d93e0affeb91dee75ab682befc52e", title: "Летающая гречка", duration: 258 },
-  { id: "ae7e47f99eeb117cd5fe58adb00a37e2", title: "Крякающий стаканчик", duration: 685 },
-  { id: "a7456f6195cffc787d8794d2e927c923", title: "Объём тела", duration: 288 },
-  { id: "09cce125281e59ac985e5b81d37a1cb4", title: "Плотность вещества", duration: 387 },
-  { id: "c14bc755bd761983639720f0a22022b5", title: "Плавление и отвердевание кристаллических тел", duration: 231 },
-  { id: "d7cb9f233b1e83686875b1ea7212a5c4", title: "Кипение и конденсация", duration: 257 },
-  { id: "c68454dcacfbed271a684ed9a6daecaf", title: "Охлаждение испарением", duration: 227 },
-  { id: "5b380b2767019ca23535fbee2572413b", title: "Шуховская башня", duration: 188 }
-];
+let videos = [];
+let unlockedIndices = [];
 
 const playerEl = document.getElementById('player');
 const selectEl = document.getElementById('videoSelect');
 const listEl = document.getElementById('videoList');
+const questionsEl = document.getElementById('questionsPanel');
 
 function buildEmbedUrl(v) {
   return `https://rutube.ru/play/embed/${v.id}`;
 }
 
+function isUnlocked(index) {
+  return unlockedIndices.includes(index);
+}
+
+function renderQuestions(index) {
+  const v = videos[index];
+  if (!v || !v.questions || v.questions.length === 0) {
+    questionsEl.innerHTML = '';
+    return;
+  }
+  const items = v.questions.map(q => `<li>${q}</li>`).join('');
+  questionsEl.innerHTML = `<h2>Подумай и обсуди:</h2><ol>${items}</ol>`;
+}
+
 function playVideo(index) {
+  if (!isUnlocked(index)) return;
   const v = videos[index];
   playerEl.src = buildEmbedUrl(v);
   selectEl.value = index;
   document.querySelectorAll('.video-item').forEach((el, i) => {
     el.classList.toggle('active', i === index);
   });
+  renderQuestions(index);
 }
 
-videos.forEach((v, i) => {
-  const opt = document.createElement('option');
-  opt.value = i;
-  opt.textContent = v.title;
-  selectEl.appendChild(opt);
+function render() {
+  selectEl.innerHTML = '';
+  listEl.innerHTML = '';
 
-  const item = document.createElement('div');
-  item.className = 'video-item';
-  item.textContent = v.title;
-  item.addEventListener('click', () => playVideo(i));
-  listEl.appendChild(item);
-});
+  videos.forEach((v, i) => {
+    const unlocked = isUnlocked(i);
+
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = unlocked ? v.title : `🔒 ${v.title}`;
+    opt.disabled = !unlocked;
+    selectEl.appendChild(opt);
+
+    const item = document.createElement('div');
+    item.className = 'video-item' + (unlocked ? '' : ' locked');
+    item.textContent = unlocked ? v.title : `🔒 ${v.title}`;
+    if (unlocked) {
+      item.addEventListener('click', () => playVideo(i));
+    }
+    listEl.appendChild(item);
+  });
+
+  const defaultIndex = unlockedIndices.length
+    ? unlockedIndices[unlockedIndices.length - 1]
+    : 0;
+  if (unlockedIndices.length) {
+    playVideo(defaultIndex);
+  } else {
+    questionsEl.innerHTML = '<div class="lock-note">Новое видео появится совсем скоро 🙂</div>';
+  }
+}
 
 selectEl.addEventListener('change', () => playVideo(Number(selectEl.value)));
 
-playVideo(0);
+Promise.all([
+  fetch('videos.json').then(r => r.json()),
+  fetch('available.json').then(r => r.json()).catch(() => null)
+]).then(([videosData, availableData]) => {
+  videos = videosData;
+  if (availableData && Array.isArray(availableData.unlockedIndices)) {
+    unlockedIndices = availableData.unlockedIndices;
+  } else {
+    // Резервный вариант, если available.json недоступен: открыто только первое видео.
+    unlockedIndices = [0];
+  }
+  render();
+});
 </script>
 
 </body>
