@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Мои видео — Физика</title>
+<style>
+  :root {
+    --accent: #3b82f6;
+    --bg: #0b0b0f;
+    --card: #16161d;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: #eee;
+    font-family: "Segoe UI", Arial, sans-serif;
+  }
+  .video-frame-wrap {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 */
+    background: #000;
+  }
+  .video-frame-wrap iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: 0;
+  }
+  select#videoSelect {
+    display: block;
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 1.1rem;
+    background: var(--card);
+    color: #fff;
+    border: none;
+    border-bottom: 2px solid var(--accent);
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .list-panel {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 10px 10px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .video-item {
+    flex: 0 0 auto;
+    background: var(--card);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    color: #eee;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .video-item.active {
+    border-color: var(--accent);
+    background: #1d2b45;
+  }
+</style>
+</head>
+<body>
+
+<div class="video-frame-wrap">
+  <iframe id="player"
+          src=""
+          allow="clipboard-write; autoplay"
+          allowfullscreen
+          webkitallowfullscreen
+          mozallowfullscreen></iframe>
+</div>
+
+<select id="videoSelect"></select>
+<div class="list-panel" id="videoList"></div>
+
+<script>
+const videos = [
+  { id: "8b7d93e0affeb91dee75ab682befc52e", title: "Летающая гречка", duration: 258 },
+  { id: "ae7e47f99eeb117cd5fe58adb00a37e2", title: "Крякающий стаканчик", duration: 685 },
+  { id: "a7456f6195cffc787d8794d2e927c923", title: "Объём тела", duration: 288 },
+  { id: "09cce125281e59ac985e5b81d37a1cb4", title: "Плотность вещества", duration: 387 },
+  { id: "c14bc755bd761983639720f0a22022b5", title: "Плавление и отвердевание кристаллических тел", duration: 231 },
+  { id: "d7cb9f233b1e83686875b1ea7212a5c4", title: "Кипение и конденсация", duration: 257 },
+  { id: "c68454dcacfbed271a684ed9a6daecaf", title: "Охлаждение испарением", duration: 227 },
+  { id: "5b380b2767019ca23535fbee2572413b", title: "Шуховская башня", duration: 188 }
+];
+
+const playerEl = document.getElementById('player');
+const selectEl = document.getElementById('videoSelect');
+const listEl = document.getElementById('videoList');
+
+function buildEmbedUrl(v) {
+  return `https://rutube.ru/play/embed/${v.id}`;
+}
+
+function playVideo(index) {
+  const v = videos[index];
+  playerEl.src = buildEmbedUrl(v);
+  selectEl.value = index;
+  document.querySelectorAll('.video-item').forEach((el, i) => {
+    el.classList.toggle('active', i === index);
+  });
+}
+
+videos.forEach((v, i) => {
+  const opt = document.createElement('option');
+  opt.value = i;
+  opt.textContent = v.title;
+  selectEl.appendChild(opt);
+
+  const item = document.createElement('div');
+  item.className = 'video-item';
+  item.textContent = v.title;
+  item.addEventListener('click', () => playVideo(i));
+  listEl.appendChild(item);
+});
+
+selectEl.addEventListener('change', () => playVideo(Number(selectEl.value)));
+
+playVideo(0);
+</script>
+
+</body>
+</html>
