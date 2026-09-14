@@ -1,8 +1,9 @@
 {
-  "generatedAt": "2026-09-13T19:29:24.733Z",
+  "generatedAt": "2026-09-14T04:47:25.446Z",
   "startDate": "2026-09-13",
-  "dayIndex": 0,
+  "dayIndex": 1,
   "unlockedIndices": [
-    0
+    0,
+    1
   ]
 }
