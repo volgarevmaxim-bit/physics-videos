@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/progress.schema.json",
+  "$comment": "Прогресс живёт в localStorage браузера; эта схема — документация контракта; клиентская валидация на этом этапе не выполняется",
+  "type": "object",
+  "properties": {
+    "profiles": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_-]*$" },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "watched": {
+            "type": "object",
+            "propertyNames": { "pattern": "^[0-9a-f]{32}$" },
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "viewCount":    { "type": "integer", "minimum": 1 },
+                "completed":    { "type": "boolean" },
+                "lastWatchedAt": { "type": "string", "format": "date-time" },
+                "rating": {
+                  "anyOf": [
+                    { "type": "null" },
+                    { "type": "integer", "minimum": 1, "maximum": 5 }
+                  ]
+                }
+              },
+              "required": ["viewCount", "completed", "lastWatchedAt", "rating"],
+              "additionalProperties": false
+            }
+          },
+          "seeded": { "type": "integer", "minimum": 1 }
+        },
+        "required": ["watched"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["profiles"],
+  "additionalProperties": false
+}

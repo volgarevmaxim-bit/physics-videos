@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/available.schema.json",
+  "type": "object",
+  "properties": {
+    "generatedAt":      { "type": "string", "format": "date-time" },
+    "startDate":        { "type": "string", "format": "date" },
+    "dayIndex":         { "type": "integer", "minimum": 0 },
+    "unlockedIndices":  {
+      "type": "array",
+      "items": { "type": "integer", "minimum": 0 },
+      "minItems": 1,
+      "maxItems": 2,
+      "uniqueItems": true
+    }
+  },
+  "required": ["generatedAt", "startDate", "dayIndex", "unlockedIndices"],
+  "additionalProperties": false
+}

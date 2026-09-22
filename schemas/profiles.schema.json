@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/profiles.schema.json",
+  "type": "object",
+  "properties": {
+    "version":  { "type": "integer", "minimum": 1 },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id":   { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+          "name": { "type": "string", "minLength": 1 }
+        },
+        "required": ["id", "name"],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": ["version", "profiles"],
+  "additionalProperties": false
+}

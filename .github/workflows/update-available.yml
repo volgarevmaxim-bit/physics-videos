@@ -20,6 +20,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: Validate data files
+        run: npm ci && npm run validate
+
       - name: Generate available.json
         run: node scripts/update-available.mjs
 
