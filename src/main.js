@@ -147,7 +147,7 @@ function showProfileGate() {
 
 function hideProfileGate() {
   profileGateEl.classList.remove('visible');
-  switchProfileBtnEl.style.display = 'block';
+  switchProfileBtnEl.style.display = ''; // flex из CSS-класса .hamburger-btn
 }
 
 async function selectProfile(id) {
