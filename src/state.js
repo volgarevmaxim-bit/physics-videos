@@ -47,7 +47,8 @@ export function getProfileProgress(progress, profileId) {
 export function recordView(progress, profileId, videoId) {
   const prof = getProfileProgress(progress, profileId);
   if (!prof.watched[videoId]) {
-    prof.watched[videoId] = {};
+    // Полная форма записи с рождения — соответствует progress.schema.json
+    prof.watched[videoId] = { viewCount: 0, completed: false, lastWatchedAt: nowISO(), rating: null };
   }
   const entry = prof.watched[videoId];
   entry.viewCount = (entry.viewCount || 0) + 1;
@@ -61,7 +62,8 @@ export function recordView(progress, profileId, videoId) {
 export function markCompleted(progress, profileId, videoId) {
   const prof = getProfileProgress(progress, profileId);
   if (!prof.watched[videoId]) {
-    prof.watched[videoId] = {};
+    // Полная форма записи с рождения — соответствует progress.schema.json
+    prof.watched[videoId] = { viewCount: 0, completed: false, lastWatchedAt: nowISO(), rating: null };
   }
   const entry = prof.watched[videoId];
   entry.completed = true;
