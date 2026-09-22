@@ -51,5 +51,15 @@
 
 [0.2.1]: https://github.com/volgarevmaxim-bit/physics-videos/releases/tag/v0.2.1
 
+## [0.2.2] - 2026-09-22
+
+### Изменено
+
+- Подписи видео в списке ограничены двумя словами (служебные слова — союзы/предлоги —
+  не занимают слот: «Плавление и отвердевание…» → «Плавление отвердевание»).
+- Issues бэклога помечены метками content/ui/automation; probe-issue закрыт.
+
+[0.2.2]: https://github.com/volgarevmaxim-bit/physics-videos/releases/tag/v0.2.2
+
 [0.1.0]: https://github.com/volgarevmaxim-bit/physics-videos/releases/tag/v0.1.0
 [0.2.0]: https://github.com/volgarevmaxim-bit/physics-videos/releases/tag/v0.2.0

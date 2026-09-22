@@ -27,6 +27,23 @@ const profileGateEl = document.getElementById('profileGate');
 const profileCardsEl = document.getElementById('profileCards');
 const switchProfileBtnEl = document.getElementById('switchProfileBtn');
 
+// ---------- Labels ----------
+
+// Подписи видео в списке: не длиннее двух слов, лишнее отбрасывается.
+// Служебные слова (союзы/предлоги) не считаются: «Плавление и отвердевание…» → «Плавление отвердевание».
+const STOPWORDS = new Set(['и', 'в', 'во', 'с', 'со', 'к', 'о', 'об', 'на', 'из', 'за', 'по', 'до', 'у', 'не']);
+
+function shortTitle(title) {
+  const words = String(title).trim().split(/\s+/);
+  const picked = [];
+  for (const w of words) {
+    if (picked.length > 0 && STOPWORDS.has(w.toLowerCase())) continue;
+    picked.push(w);
+    if (picked.length === 2) break;
+  }
+  return picked.join(' ');
+}
+
 // ---------- Watcher ----------
 
 function clearWatcher() {
@@ -77,7 +94,7 @@ function renderVideoItems() {
     if (unlocked && completed) cls += ' rewatch';
     item.className = cls;
 
-    let text = unlocked ? v.title : `🔒 ${v.title}`;
+    let text = unlocked ? shortTitle(v.title) : `🔒 ${shortTitle(v.title)}`;
     if (unlocked && completed) text += ' · уже смотрели';
     item.textContent = text;
 
@@ -94,7 +111,7 @@ function renderVideoItems() {
     const completed = isCompleted(currentProgress, currentProfileId, v.id);
     const opt = document.createElement('option');
     opt.value = i;
-    let text = unlocked ? v.title : `🔒 ${v.title}`;
+    let text = unlocked ? shortTitle(v.title) : `🔒 ${shortTitle(v.title)}`;
     if (unlocked && completed) text += ' · уже смотрели';
     opt.textContent = text;
     opt.disabled = !unlocked;
