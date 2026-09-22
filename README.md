@@ -40,22 +40,22 @@
 
 Четыре логических потока:
 
-- **Ingestion** — ручной: видео отбираются и записываются в `videos.json`.
+- **Ingestion** — ручной: видео отбираются и записываются в `data/videos.json`.
   Пока один источник; в будущем — парсеры каналов, API Rutube.
 
 - **Scheduling** — GitHub Action `update-available.yml` ежедневно в 00:05 UTC
   запускает `scripts/update-available.mjs`. Алгоритм: `dayIndex % length`
   (циклический показ после исчерпания пула), день 0 открывает только
-  первый ролик. Результат — `available.json` с полями `dayIndex`
+  первый ролик. Результат — `data/available.json` с полями `dayIndex`
   и `unlockedIndices`.
 
 - **Delivery** — Vite собирает `src/index.html` в корень репозитория.
   Артефакты сборки коммитятся в репо и обслуживаются GitHub Pages как
-  статика. Клиентский JS (`scheduler.js`) по `available.json` решает,
+  статика. Клиентский JS (`scheduler.js`) по `data/available.json` решает,
   какие видео показывать и какую Rutube-ссылку встраивать.
 
 - **State** — `localStorage`, ключ `physicsVideosProgress`. Сервер о
-  прогрессе не знает и не хранит ничего, кроме `available.json`.
+  прогрессе не знает и не хранит ничего, кроме `data/available.json`.
 
 ---
 
@@ -67,28 +67,28 @@
 |---|---|
 | `index.html` | Разметка и CSS (единственная HTML-точка входа) |
 | `main.js` | Точка входа: рендер UI, переключение профилей, трекинг |
-| `scheduler.js` | Fetch `videos.json` и `available.json`, unlocked-логика, сборка Rutube embed-ссылки |
+| `scheduler.js` | Fetch `data/videos.json` и `data/available.json`, unlocked-логика, сборка Rutube embed-ссылки |
 | `quiz.js` | Рендер вопросов и проверка ответов |
-| `state.js` | **Добавляется на этом этапе.** Чтение/запись прогресса в localStorage |
+| `state.js` | Чтение/запись прогресса в localStorage (`physicsVideosProgress`) |
 
 ### Данные (корень репозитория)
 
 | Файл | Роль |
 |---|---|
-| `videos.json` | 8 видео: `{id: 32-hex (rutube), title, duration (сек), questions[]}` |
-| `config.json` | `{startDate: "2026-09-13"}` — точка отсчёта daily-расписания |
-| `available.json` | Генерируется CI: `{generatedAt, startDate, dayIndex, unlockedIndices}` |
-| `profiles.json` | **Добавляется на этом этапе.** `{version: 1, profiles: [{id: "me", name: "Я"}, {id: "son", name: "Сын"}]}` |
+| `data/videos.json` | 8 видео: `{id: 32-hex (rutube), title, duration (сек), questions[]}` |
+| `data/config.json` | `{startDate: "2026-09-13"}` — точка отсчёта daily-расписания |
+| `data/available.json` | Генерируется CI: `{generatedAt, startDate, dayIndex, unlockedIndices}` |
+| `data/profiles.json` | `{version: 1, profiles: [{id: "me", name: "Я"}, {id: "son", name: "Сын"}]}` |
 
 ### CI и инфраструктура
 
 | Файл | Роль |
 |---|---|
-| `.github/workflows/update-available.yml` | Ежедневно в 00:05 UTC генерирует и коммитит `available.json` |
+| `.github/workflows/update-available.yml` | Ежедневно в 00:05 UTC генерирует и коммитит `data/available.json` |
 | `scripts/update-available.mjs` | Генератор расписания; экспортирует `computeSchedule()` |
 | `scripts/update-available.test.mjs` | 10 unit-тестов (node:test) для алгоритма расписания |
 | `vite.config.js` | Vite: root = `src/`, outDir = корень репозитория |
-| `schemas/` | **Появится на этом этапе.** JSON Schema для валидации всех файлов данных |
+| `schemas/` | 5 JSON Schema (draft 2020-12) для всех файлов данных + контракт localStorage-прогресса |
 
 ### Схема прогресса (localStorage)
 
@@ -125,7 +125,7 @@
    локальное хранение просмотров, Web-компонентный UI через Vite.
 
 3. **Множественные источники контента.** Парсинг канала Rutube, RSS-лент,
-   ручная загрузка — не только `videos.json`.
+   ручная загрузка — не только `data/videos.json`.
 
 4. **Ранжирование по интересу и усвоению.** Использовать поле `rating` для
    сортировки: что ребёнку заходит — то показывать чаще.
@@ -148,7 +148,7 @@
 # Установка зависимостей
 npm install
 
-# Dev-сервер с HMR (данные из корня репозитория — videos.json, config.json)
+# Dev-сервер с HMR (данные из data/ в корне репозитория)
 npm run dev
 
 # Сборка статики в корень репозитория
@@ -160,7 +160,7 @@ npm run preview
 # Unit-тесты алгоритма расписания (10 тестов)
 node --test scripts/update-available.test.mjs
 
-# Валидация данных (JSON Schema) — после появления schemas/
+# Валидация данных (JSON Schema)
 # npm run validate
 ```
 
@@ -175,7 +175,7 @@ node --test scripts/update-available.test.mjs
 - **Сборка:** Vite (`npm run build`) складывает артефакты `index.html`
   и `assets/*.js` в корень репозитория — они коммитятся прямо в `main`.
 - **Ежедневное расписание:** GitHub Action `update-available.yml`
-  запускается в 00:05 UTC, генерирует свежий `available.json`
+  запускается в 00:05 UTC, генерирует свежий `data/available.json`
   и коммитит его в ту же ветку. Страница обновляется при следующем
   визите (без деплоя — просто новый JSON).
 - Никакого отдельного `gh-pages`-бранча или отдельного хостинга.

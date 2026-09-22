@@ -174,7 +174,7 @@ async function initApp() {
 
 async function startUp() {
   try {
-    const resp = await fetch('profiles.json');
+    const resp = await fetch('data/profiles.json');
     const data = await resp.json();
     profilesData = data.profiles || [];
   } catch (e) {

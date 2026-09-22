@@ -30,10 +30,10 @@ ajv.addFormat('date-time', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\
 
 // --- Загрузка схем ---
 const SCHEMAS = [
-  { file: 'videos.schema.json',    dataFile: 'videos.json' },
-  { file: 'config.schema.json',    dataFile: 'config.json' },
-  { file: 'profiles.schema.json',  dataFile: 'profiles.json' },
-  { file: 'available.schema.json', dataFile: 'available.json' },
+  { file: 'videos.schema.json',    dataFile: 'data/videos.json' },
+  { file: 'config.schema.json',    dataFile: 'data/config.json' },
+  { file: 'profiles.schema.json',  dataFile: 'data/profiles.json' },
+  { file: 'available.schema.json', dataFile: 'data/available.json' },
 ];
 
 function loadJSON(path) {
@@ -71,7 +71,7 @@ for (const { file, dataFile } of SCHEMAS) {
 }
 
 if (allOk) {
-  console.log('OK: videos.json, config.json, profiles.json, available.json валидны');
+  console.log('OK: data/*.json валидны');
   process.exit(0);
 } else {
   process.exit(1);

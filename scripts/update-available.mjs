@@ -32,7 +32,7 @@ export function computeSchedule({ videos, config, now }) {
 
   let warning = null;
   if (len < 14) {
-    warning = `Warning: videos.json содержит ${len} видео (< 14) — пул будет циклиться с повторами раньше 2 недель`;
+    warning = `Warning: data/videos.json содержит ${len} видео (< 14) — пул будет циклиться с повторами раньше 2 недель`;
   }
 
   return { dayIndex, unlockedIndices, warning };
@@ -42,8 +42,8 @@ export function computeSchedule({ videos, config, now }) {
 const isMain = typeof process.argv[1] === 'string'
   && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
-  const videos = JSON.parse(readFileSync('videos.json', 'utf8'));
-  const config = JSON.parse(readFileSync('config.json', 'utf8'));
+  const videos = JSON.parse(readFileSync('data/videos.json', 'utf8'));
+  const config = JSON.parse(readFileSync('data/config.json', 'utf8'));
 
   const schedule = computeSchedule({ videos, config, now: new Date() });
 
@@ -54,7 +54,7 @@ if (isMain) {
     unlockedIndices: schedule.unlockedIndices,
   };
 
-  writeFileSync('available.json', `${JSON.stringify(result, null, 2)}\n`);
+  writeFileSync('data/available.json', `${JSON.stringify(result, null, 2)}\n`);
   console.log('available.json updated:', JSON.stringify(result));
 
   if (schedule.warning) {

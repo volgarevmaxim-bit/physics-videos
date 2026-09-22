@@ -1,7 +1,7 @@
 export async function loadIndex() {
   const [videosData, availableData] = await Promise.all([
-    fetch('videos.json').then(r => r.json()),
-    fetch('available.json').then(r => r.json()).catch(() => null)
+    fetch('data/videos.json').then(r => r.json()),
+    fetch('data/available.json').then(r => r.json()).catch(() => null)
   ]);
 
   let unlockedIndices;
