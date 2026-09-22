@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "profiles": [
+    { "id": "me", "name": "Я" },
+    { "id": "son", "name": "Сын" }
+  ]
+}
